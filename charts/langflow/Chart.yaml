@@ -4,7 +4,7 @@ name: langflow
 description: Langflow visual AI workflow builder
 type: application
 version: 1.0.4
-appVersion: "1.10.2"
+appVersion: "1.11.1"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev
