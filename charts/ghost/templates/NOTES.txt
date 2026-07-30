@@ -1,6 +1,10 @@
 {{/* SPDX-License-Identifier: Apache-2.0 */}}
 {{- $fullname := include "ghost.fullname" . -}}
 {{- $namespace := .Release.Namespace -}}
+{{- $externalSecretItemCount := len (.Values.externalSecrets.items | default list) -}}
+{{- if and (eq $externalSecretItemCount 0) .Values.externalSecrets.data -}}
+{{- $externalSecretItemCount = 1 -}}
+{{- end -}}
 
 1. Ghost has been installed
 ---------------------------
@@ -115,8 +119,11 @@
 ------------------------
 {{- if .Values.externalSecrets.enabled }}
   External Secrets Operator is enabled.
-  SecretStore: {{ .Values.externalSecrets.secretStoreRef.kind }}/{{ .Values.externalSecrets.secretStoreRef.name }}
+  ExternalSecret items: {{ $externalSecretItemCount }}
   Target Secret: {{ include "ghost.dbSecretName" . }}
+  Verify synchronization:
+    kubectl get externalsecret -n {{ $namespace }}
+    kubectl get secret {{ include "ghost.dbSecretName" . }} -n {{ $namespace }}
 {{- else }}
   External Secrets Operator is disabled.
 {{- end }}
