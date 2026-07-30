@@ -3,7 +3,7 @@ apiVersion: v2
 name: envoy-gateway
 description: Production-ready Envoy Gateway operator with Gateway API support, cert generation, and advanced traffic policies
 type: application
-version: 1.8.0
+version: 1.8.1
 appVersion: "v1.8.3"
 kubeVersion: ">=1.24.0-0"
 home: https://helmforge.dev/docs/charts/envoy-gateway
@@ -33,8 +33,8 @@ maintainers:
 icon: https://helmforge.dev/icons/charts/envoy-gateway.png
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "make crd installation configurable (#859)"
+    - kind: changed
+      description: "update to v1.8.3 (#866)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
