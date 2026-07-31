@@ -2,7 +2,7 @@
 apiVersion: v2
 name: wordpress
 type: application
-version: 3.0.2
+version: 3.0.3
 appVersion: "7.0.2"
 kubeVersion: ">=1.26.0-0"
 description: A Helm chart for deploying WordPress on Kubernetes with MySQL support and S3 backup
@@ -22,12 +22,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/wordpress.png
 annotations:
   artifacthub.io/changes: |
-    - kind: security
-      description: "upgrade WordPress to 7.0.2 with fixes for critical and high severity vulnerabilities"
-    - kind: changed
-      description: "bump the HelmForge Redis subchart to 1.6.20"
-    - kind: added
-      description: "support complete custom NetworkPolicy egress rules with optional ports"
+    - kind: fixed
+      description: "upgrade to 7.0.2 security release (#885)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
