@@ -3,7 +3,7 @@ apiVersion: v2
 name: vaultwarden
 description: Vaultwarden for Kubernetes with persistent SQLite storage and explicit ingress/domain configuration
 type: application
-version: 1.12.10
+version: 1.12.11
 appVersion: "1.37.1"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -21,10 +21,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/vaultwarden.png
 annotations:
   artifacthub.io/changes: |
-    - kind: security
-      description: "upgrade Vaultwarden to 1.37.1 with security fixes, 2026.7.0+ client support, and the invite hotfix"
-    - kind: added
-      description: "expose trusted proxy and unauthenticated endpoint rate-limit settings"
+    - kind: fixed
+      description: "upgrade to 1.37.1 security release (#884)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
