@@ -3,7 +3,7 @@ apiVersion: v2
 name: netbox
 description: NetBox infrastructure resource modeling with web, worker, and housekeeping workloads
 type: application
-version: 0.1.0
+version: 1.0.0
 appVersion: "4.6.5"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -23,8 +23,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/netbox.png
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "add production-ready NetBox chart (#874)"
+    - kind: changed
+      description: "BREAKING: add netbox chart (#886)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
