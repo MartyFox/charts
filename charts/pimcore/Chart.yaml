@@ -3,7 +3,7 @@ apiVersion: v2
 name: pimcore
 description: Pimcore data and experience management platform with PHP-FPM, Messenger workers, and maintenance automation
 type: application
-version: 0.1.0
+version: 1.0.0
 appVersion: "2026.2.5"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -26,8 +26,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/pimcore.png
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "add production-ready Pimcore chart (#877)"
+    - kind: changed
+      description: "BREAKING: add pimcore chart (#887)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
