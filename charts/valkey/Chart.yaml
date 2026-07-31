@@ -3,7 +3,7 @@ apiVersion: v2
 name: valkey
 description: Valkey Helm chart for standalone, replication, sentinel, and cluster topologies
 type: application
-version: 2.0.2
+version: 2.0.3
 appVersion: "9.1.1"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -27,8 +27,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/valkey.png
 annotations:
   artifacthub.io/changes: |
-    - kind: security
-      description: "upgrade Valkey to 9.1.1 to address TLS CLIENT KILL and corrupt stream RDB vulnerabilities"
+    - kind: fixed
+      description: "upgrade to 9.1.1 security release (#883)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
