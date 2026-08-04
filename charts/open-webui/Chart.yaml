@@ -3,7 +3,7 @@ apiVersion: v2
 name: open-webui
 description: Open WebUI â€” self-hosted AI chat platform with Ollama and OpenAI support, RAG, multi-model conversations, and extensible plugin system
 type: application
-version: 1.4.2
+version: 1.4.3
 appVersion: "0.8.12"
 kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev
@@ -27,7 +27,7 @@ sources:
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: "refresh chart subchart dependencies (#587)"
+      description: "bump HelmForge subchart dependencies to latest minor/patch (#889)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
