@@ -3,7 +3,7 @@ apiVersion: v2
 name: netbox
 description: NetBox infrastructure resource modeling with web, worker, and housekeeping workloads
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "4.6.7"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -24,7 +24,7 @@ icon: https://helmforge.dev/icons/charts/netbox.png
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: "bump netbox to 4.6.7 (#903)"
+      description: "bump image to 4.6.7 (#923)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
