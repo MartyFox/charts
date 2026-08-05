@@ -2,7 +2,7 @@
 apiVersion: v2
 name: pihole
 type: application
-version: 2.0.12
+version: 2.0.13
 appVersion: "2026.07.2"
 kubeVersion: ">=1.26.0-0"
 description: A Helm chart for deploying Pi-hole DNS sinkhole on Kubernetes
@@ -24,7 +24,7 @@ icon: https://helmforge.dev/icons/charts/pihole.png
 annotations:
   artifacthub.io/changes: |
     - kind: fixed
-      description: "use available Pi-hole v6 HaGeZi blocklist formats (#930)"
+      description: "update hagezi blocklist paths (#931)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
