@@ -3,7 +3,7 @@ apiVersion: v2
 name: strapi
 description: Strapi headless CMS with SQLite, MySQL, or PostgreSQL support, uploads persistence, and S3 backups
 type: application
-version: 2.3.10
+version: 2.3.11
 appVersion: "5.51.1"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -24,7 +24,7 @@ icon: https://helmforge.dev/icons/charts/strapi.png
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: "update to 5.51.1 (#908)"
+      description: "bump image to 5.51.1 (#928)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
