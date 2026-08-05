@@ -3,7 +3,7 @@ apiVersion: v2
 name: redis
 description: Redis Helm Chart for standalone, replication, sentinel, and cluster topologies
 type: application
-version: 1.6.20
+version: 1.6.21
 appVersion: "8.10.0"
 kubeVersion: ">=1.26.0-0"
 maintainers:
@@ -26,8 +26,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/redis.png
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "upgrade to redis 8.10.0 (#907)"
+    - kind: changed
+      description: "bump image to 8.10.0 (#927)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
