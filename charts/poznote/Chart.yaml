@@ -3,7 +3,7 @@ apiVersion: v2
 name: poznote
 description: Self-hosted note-taking and documentation platform with SQLite persistence
 type: application
-version: 1.1.0
+version: 1.1.1
 appVersion: "6.51.0"
 kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev/docs/charts/poznote
@@ -24,8 +24,8 @@ maintainers:
 icon: https://helmforge.dev/icons/charts/poznote.png
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "update app to 6.51.0 (#906)"
+    - kind: changed
+      description: "bump image to 6.51.0 (#926)"
   artifacthub.io/category: skip-prediction
   artifacthub.io/license: Apache-2.0
   artifacthub.io/prerelease: "false"
