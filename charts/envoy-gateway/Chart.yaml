@@ -5,7 +5,7 @@ description: Production-ready Envoy Gateway operator with Gateway API support, c
 type: application
 version: 1.9.0
 appVersion: "v1.8.3"
-kubeVersion: ">=1.24.0-0"
+kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev/docs/charts/envoy-gateway
 sources:
   - https://github.com/helmforgedev/charts
@@ -16,7 +16,7 @@ dependencies:
     repository: ""
     condition: crds.enabled
   - name: redis
-    version: 1.6.20
+    version: 2.0.0
     repository: oci://ghcr.io/helmforgedev/helm
     alias: redis
     condition: redis.enabled
