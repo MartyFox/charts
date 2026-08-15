@@ -4,7 +4,7 @@ name: olivetin
 description: OliveTin web interface for running predefined shell commands
 type: application
 version: 1.2.0
-appVersion: "3000.18.1"
+appVersion: "3000.19.0"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev

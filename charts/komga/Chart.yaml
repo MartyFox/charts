@@ -4,7 +4,7 @@ name: komga
 description: Komga media server for comics and manga with persistent SQLite storage, library management, and S3 backup
 type: application
 version: 1.4.14
-appVersion: "1.26.1"
+appVersion: "1.26.3"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev

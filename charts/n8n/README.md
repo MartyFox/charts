@@ -144,7 +144,7 @@ externalSecrets:
 | Key | Default | Description |
 |-----|---------|-------------|
 | `image.repository` | `docker.io/n8nio/n8n` | n8n container image repository |
-| `image.tag` | `2.34.4` | n8n container image tag |
+| `image.tag` | `2.34.5` | n8n container image tag |
 | `n8n.encryptionKey` | `""` | Encryption key for credentials (auto-generated) |
 | `n8n.webhookUrl` | `""` | Webhook URL (auto-detected from ingress) |
 | `n8n.logLevel` | `info` | Log level (info, warn, error, debug) |
@@ -153,7 +153,7 @@ externalSecrets:
 | `database.mode` | `auto` | Database mode (auto, sqlite, external, postgresql, mysql) |
 | `postgresql.enabled` | `false` | Deploy PostgreSQL subchart (`helmforge/postgresql` `2.0.4`) |
 | `postgresql.initdb.scripts` | n8n extension bootstrap | Creates PostgreSQL extensions required by n8n migrations |
-| `mysql.enabled` | `false` | Deploy MySQL subchart (`helmforge/mysql` `2.0.1`) |
+| `mysql.enabled` | `false` | Deploy MySQL subchart (`helmforge/mysql` `2.0.3`) |
 | `queue.enabled` | `false` | Enable queue mode (requires Redis and a non-SQLite database) |
 | `queue.workers` | `1` | Number of worker replicas |
 | `queue.concurrency` | `10` | Concurrent workflows per worker |
@@ -186,14 +186,14 @@ externalSecrets:
 
 ## Upgrade Notes
 
-n8n `2.34.4` includes task-runner health-check fixes and the 2.34 maintenance
+n8n `2.34.5` includes task-runner health-check fixes and the 2.34 maintenance
 updates. Review the
-[upstream 2.34.4 release notes](https://github.com/n8n-io/n8n/releases/tag/n8n%402.34.4)
+[upstream 2.34.5 release notes](https://github.com/n8n-io/n8n/releases/tag/n8n%402.34.5)
 before upgrading. Back up the database, keep the encryption key stable, and
 validate task runners and queue workers in a staging namespace. This update also
 moves the bundled Redis dependency to HelmForge Redis `2.0.0`.
 
-When upgrading with `--reuse-values`, explicitly set `image.tag=2.34.4`.
+When upgrading with `--reuse-values`, explicitly set `image.tag=2.34.5`.
 Helm preserves the previous image override in that mode; also update
 `taskRunners.image.tag` when it was pinned separately.
 

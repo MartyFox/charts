@@ -4,7 +4,7 @@ name: n8n
 description: n8n workflow automation platform with SQLite, PostgreSQL, or MySQL and optional Redis queue mode
 type: application
 version: 1.6.13
-appVersion: "2.34.4"
+appVersion: "2.34.5"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev
@@ -55,7 +55,7 @@ dependencies:
     repository: oci://ghcr.io/helmforgedev/helm
     condition: postgresql.enabled
   - name: mysql
-    version: 2.0.2
+    version: 2.0.3
     repository: oci://ghcr.io/helmforgedev/helm
     condition: mysql.enabled
   - name: redis
