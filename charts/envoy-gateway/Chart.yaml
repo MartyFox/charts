@@ -3,7 +3,7 @@ apiVersion: v2
 name: envoy-gateway
 description: Production-ready Envoy Gateway operator with Gateway API support, cert generation, and advanced traffic policies
 type: application
-version: 1.10.0
+version: 1.10.1
 appVersion: "v1.9.0"
 kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev/docs/charts/envoy-gateway
@@ -34,7 +34,7 @@ icon: https://helmforge.dev/icons/charts/envoy-gateway.png
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: "upgrade Envoy Gateway to v1.9.0 and supported Gateway API CRDs to v1.6.1 (#986)"
+      description: "bump envoy gateway to 1.9.0 (#1000)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
