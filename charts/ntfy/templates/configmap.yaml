@@ -11,8 +11,10 @@ data:
     base-url: {{ . | quote }}
     {{- end }}
     listen-http: ":80"
+    {{- if not .Values.ntfy.database.enabled }}
     cache-file: /var/cache/ntfy/cache.db
     auth-file: /var/cache/ntfy/auth.db
+    {{- end }}
     auth-default-access: {{ .Values.ntfy.authDefaultAccess | quote }}
     behind-proxy: {{ .Values.ntfy.behindProxy }}
     {{- if .Values.ntfy.enableMetrics }}
@@ -29,6 +31,17 @@ data:
     {{- end }}
     {{- with .Values.ntfy.attachmentExpiryDuration }}
     attachment-expiry-duration: {{ . | quote }}
+    {{- end }}
+    {{- if .Values.ntfy.banFeed.enabled }}
+    ban-file: {{ .Values.ntfy.banFeed.file | quote }}
+    ban-window: {{ .Values.ntfy.banFeed.window | quote }}
+    ban-threshold: {{ .Values.ntfy.banFeed.threshold }}
+    {{- with .Values.ntfy.banFeed.weights }}
+    ban-weights:
+      {{- range . }}
+      - {{ . | quote }}
+      {{- end }}
+    {{- end }}
     {{- end }}
     {{- with .Values.ntfy.extraConfig }}
     {{ . | nindent 4 }}

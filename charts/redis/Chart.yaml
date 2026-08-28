@@ -3,8 +3,8 @@ apiVersion: v2
 name: redis
 description: Redis Helm Chart for standalone, replication, sentinel, and cluster topologies
 type: application
-version: 1.6.19
-appVersion: "8.8.0"
+version: 2.0.1
+appVersion: "8.10.1"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev
@@ -26,8 +26,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/redis.png
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "honor service type in cluster mode (#572)"
+    - kind: changed
+      description: "bump Redis to 8.10.1 (#1058)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev

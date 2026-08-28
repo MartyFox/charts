@@ -7,6 +7,22 @@ Release Name: {{ .Release.Name }}
   Namespace:    {{ include "envoy-gateway.namespace" . }}
 Profile:      {{ .Values.profile | default "custom" }}
 
+CRDs:
+{{- if .Values.crds.enabled }}
+  Bridge mode: bundled Envoy Gateway and Gateway API Experimental CRDs enabled
+  Migration protection: safe-upgrade policy and binding use resource-policy=keep
+
+  Existing chart 1.10.1 users must keep this mode for the first bridge upgrade,
+  then follow the migration guide before setting crds.enabled=false:
+  https://helmforge.dev/docs/charts/envoy-gateway#crd-migration-from-chart-1101
+{{- else }}
+  Standalone lifecycle: crds.enabled=false
+  Required bundle: Envoy Gateway v1.9.0 + Gateway API v1.6.1 Experimental
+  Required API discovery passed during rendering.
+  Exact bundle metadata is also validated during server-connected rendering;
+  client-only rendering cannot perform lookup-based metadata validation.
+{{- end }}
+
 --------------------------------------------------------------------------------
 1. DEPLOYMENT STATUS
 --------------------------------------------------------------------------------
@@ -165,7 +181,7 @@ Rate Limiting: Enabled
 
 {{- if .Values.redis.enabled }}
 Redis Backend: helmforge/redis subchart (standalone)
-  Service: {{ .Release.Name }}-redis.{{ .Release.Namespace }}.svc.cluster.local:6379
+  Service: {{ .Release.Name }}-redis-client.{{ .Release.Namespace }}.svc.cluster.local:6379
 
 Check Redis status:
   kubectl get statefulset {{ .Release.Name }}-redis -n {{ .Release.Namespace }}
@@ -265,5 +281,4 @@ Gateway API:   https://gateway-api.sigs.k8s.io/
 Envoy Gateway: https://gateway.envoyproxy.io/
 
 ================================================================================
-
 Happy Helmforging :)

@@ -16,7 +16,7 @@ image:
   # -- AdGuard Home container image
   repository: docker.io/adguard/adguardhome
   # -- Image tag
-  tag: "v0.107.77"
+  tag: "v0.107.79"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -134,9 +134,19 @@ service:
     # -- Service type - use LoadBalancer for external DNS access
     type: LoadBalancer
     port: 53
+    # -- Additional ports exposed by the DNS service, for example DNS-over-TLS on TCP 853.
+    # -- Names must be unique across this list and the built-in dns-tcp/dns-udp ports.
+    extraPorts: []
+      # - name: dns-tls
+      #   port: 853
+      #   targetPort: 853
+      #   protocol: TCP
     annotations: {}
     # -- Load balancer IP (optional, for static IP assignment)
     loadBalancerIP: ""
+    # -- Set traffic policy for external traffic.
+    # -- "Cluster" (default) routes traffic to any node, may masquerade source IP.
+    externalTrafficPolicy: Cluster
     # -- Service IP family policy: SingleStack | PreferDualStack | RequireDualStack. Empty uses cluster default.
     ipFamilyPolicy: ~
     # -- Service IP families override. Empty uses cluster default.

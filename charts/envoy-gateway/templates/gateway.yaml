@@ -9,11 +9,19 @@ metadata:
     {{- include "envoy-gateway.labels" . | nindent 4 }}
 spec:
   gatewayClassName: {{ .Values.gatewayClass.name }}
+  {{- with .Values.gateway.allowedListeners }}
+  allowedListeners:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   listeners:
   {{- if .Values.gateway.listeners.http.enabled }}
   - name: http
     protocol: HTTP
     port: {{ .Values.gateway.listeners.http.port }}
+    {{- with .Values.gateway.listeners.http.allowedRoutes }}
+    allowedRoutes:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   {{- end }}
   {{- if .Values.gateway.listeners.https.enabled }}
   - name: https
@@ -21,10 +29,16 @@ spec:
     port: {{ .Values.gateway.listeners.https.port }}
     tls:
       mode: {{ .Values.gateway.listeners.https.tls.mode }}
+      {{- if eq .Values.gateway.listeners.https.tls.mode "Terminate" }}
       certificateRefs:
       - name: {{ .Values.gateway.listeners.https.tls.certificateRef.name }}
         {{- if .Values.gateway.listeners.https.tls.certificateRef.namespace }}
         namespace: {{ .Values.gateway.listeners.https.tls.certificateRef.namespace }}
         {{- end }}
+      {{- end }}
+    {{- with .Values.gateway.listeners.https.allowedRoutes }}
+    allowedRoutes:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   {{- end }}
 {{- end }}

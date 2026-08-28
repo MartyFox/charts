@@ -3,8 +3,8 @@ apiVersion: v2
 name: medikeep
 description: Self-hosted personal medical records manager with PostgreSQL persistence
 type: application
-version: 1.0.2
-appVersion: "0.67.0"
+version: 2.0.0
+appVersion: "0.69.0"
 kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev/docs/charts/medikeep
 sources:
@@ -25,12 +25,12 @@ maintainers:
 icon: https://helmforge.dev/icons/charts/medikeep.png
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "align chart with helmforge standards (#632)"
+    - kind: changed
+      description: "BREAKING: promote chart to stable (#1067)"
   artifacthub.io/category: skip-prediction
   artifacthub.io/license: Apache-2.0
   artifacthub.io/prerelease: "false"
-  helmforge.dev/maturity: beta
+  helmforge.dev/maturity: stable
   artifacthub.io/links: |
     - name: Official Source
       url: https://github.com/afairgiant/MediKeep
@@ -40,6 +40,6 @@ annotations:
       url: https://github.com/helmforgedev/charts/issues
 dependencies:
   - name: postgresql
-    version: 2.0.4
+    version: 2.0.5
     repository: oci://ghcr.io/helmforgedev/helm
     condition: postgresql.enabled

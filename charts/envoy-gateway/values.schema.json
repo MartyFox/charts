@@ -16,6 +16,29 @@
       "description": "Override the namespace used by chart-managed namespaced resources",
       "default": ""
     },
+    "crds": {
+      "type": "object",
+      "description": "Bridge lifecycle for bundled or standalone Envoy Gateway and Gateway API CRDs",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Install bundled CRDs; existing releases must migrate through this bridge before disabling",
+          "default": true
+        },
+        "gatewayAPI": {
+          "type": "object",
+          "description": "Internal Gateway API CRD subchart settings",
+          "additionalProperties": true
+        },
+        "global": {
+          "type": "object",
+          "description": "Helm global values forwarded to the CRD subchart",
+          "additionalProperties": true
+        }
+      }
+    },
     "nameOverride": {
       "type": "string",
       "description": "Override the chart name",
@@ -88,7 +111,7 @@
             "tag": {
               "type": "string",
               "description": "Controller image tag",
-              "default": "v1.8.1"
+              "default": "v1.9.0"
             },
             "pullPolicy": {
               "type": "string",
@@ -213,7 +236,7 @@
             "tag": {
               "type": "string",
               "description": "Proxy image tag",
-              "default": "distroless-v1.38.0"
+              "default": "distroless-v1.39.0"
             },
             "pullPolicy": {
               "type": "string",
@@ -239,7 +262,7 @@
                 "tag": {
                   "type": "string",
                   "description": "Shutdown manager sidecar image tag",
-                  "default": "v1.8.1"
+                  "default": "v1.9.0"
                 },
                 "pullPolicy": {
                   "type": "string",
@@ -502,6 +525,28 @@
           "description": "Enable rate limiting",
           "default": false
         },
+        "service": {
+          "type": "object",
+          "description": "Envoy global rate limit service configuration",
+          "properties": {
+            "image": {
+              "type": "object",
+              "description": "Rate limit service image deployed by Envoy Gateway",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "description": "Rate limit service image repository",
+                  "default": "docker.io/envoyproxy/ratelimit"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "Rate limit service image tag",
+                  "default": "17b1956c"
+                }
+              }
+            }
+          }
+        },
         "redis": {
           "type": "object",
           "description": "Redis configuration for rate limiting backend",
@@ -642,6 +687,25 @@
           "type": "object",
           "description": "NetworkPolicy rule extensions used when security.networkPolicies is enabled",
           "properties": {
+            "dns": {
+              "type": "object",
+              "description": "Cluster DNS selector used by controller and rate-limit NetworkPolicies",
+              "properties": {
+                "namespace": {
+                  "type": "string",
+                  "description": "Namespace containing cluster DNS pods",
+                  "minLength": 1,
+                  "default": "kube-system"
+                },
+                "podLabels": {
+                  "type": "object",
+                  "description": "Labels selecting cluster DNS pods",
+                  "additionalProperties": { "type": "string" },
+                  "minProperties": 1,
+                  "default": { "k8s-app": "kube-dns" }
+                }
+              }
+            },
             "extraEgress": {
               "type": "array",
               "description": "Additional complete egress rules appended to the controller NetworkPolicy",
@@ -691,7 +755,7 @@
         },
         "name": {
           "type": "string",
-          "description": "Service account name (generated if not set)",
+          "description": "Service account name (generated if not set; must be envoy-gateway when rate limiting is enabled)",
           "default": ""
         },
         "annotations": {
@@ -724,6 +788,40 @@
           "type": "boolean",
           "description": "Create GatewayClass resource",
           "default": true
+        }
+      }
+    },
+    "gateway": {
+      "type": "object",
+      "description": "Default Gateway resource configuration",
+      "additionalProperties": false,
+      "required": ["create", "name", "allowedListeners", "listeners"],
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Create a default Gateway resource",
+          "default": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Gateway name; defaults to the Helm release name",
+          "default": ""
+        },
+        "allowedListeners": {
+          "$ref": "#/definitions/allowedListeners"
+        },
+        "listeners": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["http", "https"],
+          "properties": {
+            "http": {
+              "$ref": "#/definitions/httpListener"
+            },
+            "https": {
+              "$ref": "#/definitions/httpsListener"
+            }
+          }
         }
       }
     },
@@ -779,6 +877,228 @@
         "target": { "type": "object" },
         "data": { "type": "array" }
       }
+    }
+  },
+  "definitions": {
+    "allowedListeners": {
+      "type": "object",
+      "description": "Gateway API constraints for ListenerSets attaching to the Gateway",
+      "additionalProperties": false,
+      "properties": {
+        "namespaces": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from"],
+          "properties": {
+            "from": {
+              "type": "string",
+              "enum": ["All", "None", "Same", "Selector"]
+            },
+            "selector": {
+              "$ref": "#/definitions/labelSelector"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "from": { "const": "Selector" } },
+                "required": ["from"]
+              },
+              "then": { "required": ["selector"] },
+              "else": { "not": { "required": ["selector"] } }
+            }
+          ]
+        }
+      }
+    },
+    "labelSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "matchLabels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "matchExpressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "operator"],
+            "properties": {
+              "key": { "type": "string", "minLength": 1 },
+              "operator": {
+                "type": "string",
+                "enum": ["In", "NotIn", "Exists", "DoesNotExist"]
+              },
+              "values": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": { "operator": { "enum": ["In", "NotIn"] } },
+                  "required": ["operator"]
+                },
+                "then": {
+                  "required": ["values"],
+                  "properties": { "values": { "minItems": 1 } }
+                },
+                "else": {
+                  "properties": { "values": { "maxItems": 0 } }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "allowedRoutes": {
+      "type": "object",
+      "description": "Gateway API constraints for Routes attaching to a listener",
+      "additionalProperties": false,
+      "properties": {
+        "kinds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+              "group": { "type": "string" },
+              "kind": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "namespaces": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string",
+              "enum": ["All", "Same", "Selector"]
+            },
+            "selector": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "matchLabels": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" }
+                },
+                "matchExpressions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["key", "operator"],
+                    "properties": {
+                      "key": { "type": "string", "minLength": 1 },
+                      "operator": {
+                        "type": "string",
+                        "enum": ["In", "NotIn", "Exists", "DoesNotExist"]
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    },
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": { "operator": { "enum": ["In", "NotIn"] } },
+                          "required": ["operator"]
+                        },
+                        "then": {
+                          "required": ["values"],
+                          "properties": { "values": { "minItems": 1 } }
+                        },
+                        "else": { "not": { "required": ["values"] } }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "from": { "const": "Selector" } },
+                "required": ["from"]
+              },
+              "then": { "required": ["selector"] },
+              "else": { "not": { "required": ["selector"] } }
+            }
+          ]
+        }
+      }
+    },
+    "httpListener": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "port", "allowedRoutes"],
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 80 },
+        "allowedRoutes": { "$ref": "#/definitions/allowedRoutes" }
+      }
+    },
+    "httpsListener": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "port", "tls", "allowedRoutes"],
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 443 },
+        "allowedRoutes": { "$ref": "#/definitions/allowedRoutes" },
+        "tls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode"],
+          "properties": {
+            "mode": { "type": "string", "enum": ["Terminate", "Passthrough"] },
+            "certificateRef": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "namespace"],
+              "properties": {
+                "name": { "type": "string" },
+                "namespace": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": { "const": true },
+              "tls": {
+                "properties": { "mode": { "const": "Terminate" } },
+                "required": ["mode"]
+              }
+            },
+            "required": ["enabled", "tls"]
+          },
+          "then": {
+            "properties": {
+              "tls": {
+                "required": ["certificateRef"],
+                "properties": {
+                  "certificateRef": {
+                    "required": ["name"],
+                    "properties": { "name": { "minLength": 1 } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

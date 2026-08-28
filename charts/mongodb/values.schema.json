@@ -39,7 +39,7 @@
         "tag": {
           "type": "string",
           "description": "MongoDB image tag",
-          "default": "8.3.4"
+          "default": "8.3.8"
         },
         "pullPolicy": {
           "type": "string",
@@ -142,6 +142,22 @@
           "description": "Number of data-bearing members (architecture=replicaset)",
           "minimum": 1,
           "default": 3
+        }
+      }
+    },
+    "arbiter": {
+      "type": "object",
+      "description": "Optional non-data-bearing voting member for replica set deployments",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Add one arbiter when architecture=replicaset",
+          "default": false
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resources for the arbiter mongod container"
         }
       }
     },
@@ -662,7 +678,7 @@
                 },
                 "tag": {
                   "type": "string",
-                  "default": "8.3.4"
+                  "default": "8.3.8"
                 },
                 "pullPolicy": {
                   "type": "string",

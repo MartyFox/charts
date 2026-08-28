@@ -4,7 +4,7 @@ Deploy [NoteDiscovery](https://github.com/gamosoft/NoteDiscovery), a
 self-hosted Markdown knowledge base with graph view, search, sharing, and MCP
 integration.
 
-This chart packages the official `ghcr.io/gamosoft/notediscovery:0.27.3` image
+This chart packages the official `ghcr.io/gamosoft/notediscovery:0.31.4` image
 and exposes the runtime settings that matter for Kubernetes: persistent note
 storage, generated or externally managed `config.yaml`, optional authentication,
 ingress/Gateway API exposure, network policy, pod disruption budget, and
@@ -50,6 +50,7 @@ Then open `http://127.0.0.1:8000`.
 notediscovery:
   allowedOrigins:
     - https://notes.example.com
+  defaultTheme: dracula
 
 auth:
   enabled: true
@@ -113,11 +114,12 @@ stringData:
       debug: false
     storage:
       notes_dir: "/app/data"
-      plugins_dir: "./plugins"
+      plugins_dir: "/app/data/plugins"
     search:
       enabled: true
     ui:
       autosave_delay_ms: 1000
+      default_theme: "dracula"
     authentication:
       enabled: true
       secret_key: "replace-with-a-long-random-secret"
@@ -147,6 +149,31 @@ Multiple pods require storage semantics chosen by the operator, typically a
 shared ReadWriteMany claim; the default generated claim is a single-writer
 volume.
 
+## Upgrade Notes
+
+NoteDiscovery `0.31.4` is the current stable upstream release. Review the
+[upstream 0.31.4 release](https://github.com/gamosoft/NoteDiscovery/releases/tag/v0.31.4)
+and back up the data PVC before upgrading.
+
+Generated configuration now stores plugin state under the writable data volume
+and bootstraps the official bundled plugins there. Existing Secrets should use
+`storage.plugins_dir: "/app/data/plugins"` (or another writable directory).
+The chart sets `PLUGINS_DIR` to `notediscovery.pluginsDir`, derived from
+`persistence.mountPath` when empty, so the effective path stays consistent for
+generated config, existing Secrets, and External Secrets. Bootstrap preserves
+files already present on the volume.
+
+Back up the PVC and keep `persistence.mountPath` stable, then apply the new
+chart defaults while preserving explicit overrides:
+
+```bash
+helm repo update helmforge
+helm upgrade notediscovery helmforge/notediscovery \
+  --version 1.1.0 \
+  --namespace notediscovery \
+  --reset-then-reuse-values
+```
+
 ## Network Policy
 
 `networkPolicy.enabled=true` restricts inbound HTTP traffic to the configured
@@ -160,14 +187,12 @@ egress rules after built-in DNS and HTTPS allowances.
 - [Authentication](docs/authentication.md)
 - [Exposure](docs/exposure.md)
 - [MCP integration](docs/mcp.md)
+- [Production](docs/production.md)
 
 ## Security Scan: `notediscovery`
 
 | Framework | Score |
 |---|---|
-| Overall | **87.37%** |
-| MITRE | **100.00%** |
-| NSA | **82.50%** |
-| SOC2 | **86.67%** |
+| MITRE + NSA + SOC2 | **87.37373%** |
 
 > Security posture acceptable.

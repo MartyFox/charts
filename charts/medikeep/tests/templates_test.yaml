@@ -14,7 +14,7 @@ tests:
           of: Deployment
       - equal:
           path: spec.template.spec.containers[0].image
-          value: ghcr.io/afairgiant/medikeep:v0.67.0
+          value: ghcr.io/afairgiant/medikeep:v0.69.0
       - equal:
           path: spec.strategy.type
           value: Recreate
@@ -43,6 +43,18 @@ tests:
           value: RELEASE-NAME-medikeep-app
       - exists:
           path: stringData["secret-key"]
+  - it: wires the bundled database existing Secret into MediKeep
+    template: templates/deployment.yaml
+    set:
+      postgresql.auth.existingSecret: medikeep-postgresql
+      postgresql.auth.existingSecretUserPasswordKey: application-password
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[4].valueFrom.secretKeyRef.name
+          value: medikeep-postgresql
+      - equal:
+          path: spec.template.spec.containers[0].env[4].valueFrom.secretKeyRef.key
+          value: application-password
   - it: skips app secret when existing secret is supplied
     template: templates/secret.yaml
     set:

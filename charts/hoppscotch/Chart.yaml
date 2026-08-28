@@ -5,8 +5,8 @@ description: Hoppscotch Community Edition for Kubernetes — open-source API dev
 home: https://helmforge.dev/docs/charts/hoppscotch
 icon: https://helmforge.dev/icons/charts/hoppscotch.png
 type: application
-version: 1.1.6
-appVersion: "2026.5.0"
+version: 1.1.10
+appVersion: "2026.7.0"
 kubeVersion: ">=1.26.0-0"
 
 keywords:
@@ -23,14 +23,14 @@ maintainers:
 
 dependencies:
   - name: postgresql
-    version: 2.0.4
+    version: 2.0.5
     repository: oci://ghcr.io/helmforgedev/helm
     condition: postgresql.enabled
 
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "align template standards (#675)"
+    - kind: changed
+      description: "bump HelmForge subchart dependencies to latest minor/patch (#1011)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev

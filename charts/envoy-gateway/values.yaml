@@ -10,6 +10,13 @@ profile: custom
 # -- Override the namespace used by chart-managed namespaced resources. The target namespace must already exist.
 namespaceOverride: ""
 
+# -- Install the Envoy Gateway and Gateway API CRDs bundled with the chart.
+# Existing installations must first upgrade to this bridge release with this
+# value enabled. Disable only after installing envoy-gateway-crds and completing
+# the documented UID-preserving migration.
+crds:
+  enabled: true
+
 ## Controller Service configuration
 service:
   # -- Set the ipFamilyPolicy for controller Services (dual-stack)
@@ -28,7 +35,7 @@ controller:
     # -- Controller image pull policy
     pullPolicy: IfNotPresent
     # -- Controller image tag (defaults to chart appVersion)
-    tag: "v1.8.1"
+    tag: "v1.9.0"
 
   # -- Resources for controller (overridden by profile)
   resources:
@@ -70,7 +77,7 @@ certgen:
     # -- Certgen image pull policy
     pullPolicy: IfNotPresent
     # -- Certgen image tag (defaults to chart appVersion)
-    tag: "v1.8.1"
+    tag: "v1.9.0"
 
 ## Proxy configuration via EnvoyProxy CRD (EG manages the actual proxy pods)
 proxy:
@@ -86,15 +93,15 @@ proxy:
     repository: docker.io/envoyproxy/envoy
     # -- Proxy image pull policy
     pullPolicy: IfNotPresent
-    # -- Envoy image tag for EG v1.8 compatibility matrix (distroless)
-    tag: "distroless-v1.38.0"
+    # -- Envoy image tag for EG v1.9 compatibility matrix (distroless)
+    tag: "distroless-v1.39.0"
 
   shutdownManager:
     image:
       # -- Shutdown manager sidecar image repository
       repository: docker.io/envoyproxy/gateway
       # -- Shutdown manager sidecar image tag
-      tag: "v1.8.1"
+      tag: "v1.9.0"
       # -- Shutdown manager image pull policy
       pullPolicy: IfNotPresent
 
@@ -164,10 +171,14 @@ gateway:
   create: true
   # -- Name of the Gateway (defaults to release name)
   name: ""
+  # -- Controls which ListenerSets may attach to the Gateway (empty uses Gateway API None default)
+  allowedListeners: {}
   listeners:
     http:
       enabled: true
       port: 80
+      # -- Controls which Routes may attach to the HTTP listener (empty uses Gateway API same-namespace default)
+      allowedRoutes: {}
     https:
       enabled: false
       port: 443
@@ -177,6 +188,8 @@ gateway:
           # -- Name of the TLS secret (must be in same namespace)
           name: ""
           namespace: ""
+      # -- Controls which Routes may attach to the HTTPS listener (empty uses Gateway API same-namespace default)
+      allowedRoutes: {}
 
 ## SecurityPolicy - EG-native auth (JWT, OIDC, API Key, CORS)
 securityPolicy:
@@ -319,7 +332,7 @@ rateLimiting:
   service:
     image:
       repository: docker.io/envoyproxy/ratelimit
-      tag: "19f2079f"
+      tag: "17b1956c"
   # -- Use an external Redis instead of the bundled subchart
   # Set this if redis.enabled=false and you want to point to your own Redis.
   externalRedis:
@@ -387,6 +400,12 @@ security:
   # -- Enable rendering of NetworkPolicy resources
   networkPolicies: false
   networkPolicy:
+    dns:
+      # -- Namespace containing the cluster DNS pods allowed by NetworkPolicies
+      namespace: kube-system
+      # -- Pod labels selecting the cluster DNS endpoints allowed by NetworkPolicies
+      podLabels:
+        k8s-app: kube-dns
     # -- Additional complete egress rules appended to the controller NetworkPolicy when security.networkPolicies is enabled
     extraEgress: []
   # -- Enable PodSecurityStandard restricted
@@ -413,7 +432,7 @@ gatewayAPI:
 serviceAccount:
   # -- Create service account
   create: true
-  # -- Service account name (generated if not set)
+  # -- Service account name (generated if not set; must be envoy-gateway when rate limiting is enabled)
   name: ""
   # -- Annotations for service account
   annotations: {}

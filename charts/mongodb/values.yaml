@@ -21,7 +21,7 @@ commonLabels: {}
 
 image:
   repository: docker.io/library/mongo
-  tag: "8.3.4"
+  tag: "8.3.8"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -64,6 +64,16 @@ replicaSet:
   name: rs0
   # -- Number of data-bearing members (architecture=replicaset)
   members: 3
+
+# =============================================================================
+# Arbiter
+# =============================================================================
+
+arbiter:
+  # -- Add one non-data-bearing voting member (architecture=replicaset)
+  enabled: false
+  # -- Resources for the arbiter mongod container
+  resources: {}
 
 # =============================================================================
 # Sharded Cluster (architecture=sharded)
@@ -315,7 +325,7 @@ backup:
       pullPolicy: IfNotPresent
     mongodb:
       repository: docker.io/library/mongo
-      tag: "8.3.4"
+      tag: "8.3.8"
       pullPolicy: IfNotPresent
   s3:
     # -- S3-compatible endpoint URL, for example: https://s3.amazonaws.com or https://minio.example.com

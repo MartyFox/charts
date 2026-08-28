@@ -3,10 +3,43 @@
 {{- include "openhab.validateAdmin" . }}
 {{- include "openhab.validateConfigMaps" . }}
 {{- include "openhab.validatePodLabels" . }}
+{{- include "openhab.validatePersistence" . }}
 {{- $hasSitemaps := and .Values.configMaps.sitemaps.enabled (gt (len (.Values.configMaps.sitemaps.files | default dict)) 0) }}
 {{- $hasThings := and .Values.configMaps.things.enabled (gt (len (.Values.configMaps.things.files | default dict)) 0) }}
 {{- $hasItems := and .Values.configMaps.items.enabled (gt (len (.Values.configMaps.items.files | default dict)) 0) }}
 {{- $hasConfigMaps := or $hasSitemaps $hasThings $hasItems }}
+{{- $hasPersistenceSubPath := or (and .Values.persistence.userdata.enabled .Values.persistence.userdata.subPath) (and .Values.persistence.conf.enabled .Values.persistence.conf.subPath) (and .Values.persistence.addons.enabled .Values.persistence.addons.subPath) }}
+{{- $persistenceVolumeNames := list }}
+{{- $persistenceVolumeClaims := dict }}
+{{- $subPathVolumeNames := list }}
+{{- if .Values.persistence.userdata.enabled }}
+{{- $volumeName := include "openhab.userdataVolumeName" . }}
+{{- $persistenceVolumeNames = append $persistenceVolumeNames $volumeName }}
+{{- $_ := set $persistenceVolumeClaims $volumeName (include "openhab.userdataPvcName" .) }}
+{{- if .Values.persistence.userdata.subPath }}
+{{- $subPathVolumeNames = append $subPathVolumeNames $volumeName }}
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.conf.enabled }}
+{{- $volumeName := include "openhab.confVolumeName" . }}
+{{- if not (has $volumeName $persistenceVolumeNames) }}
+{{- $persistenceVolumeNames = append $persistenceVolumeNames $volumeName }}
+{{- $_ := set $persistenceVolumeClaims $volumeName (include "openhab.confPvcName" .) }}
+{{- end }}
+{{- if and .Values.persistence.conf.subPath (not (has $volumeName $subPathVolumeNames)) }}
+{{- $subPathVolumeNames = append $subPathVolumeNames $volumeName }}
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.addons.enabled }}
+{{- $volumeName := include "openhab.addonsVolumeName" . }}
+{{- if not (has $volumeName $persistenceVolumeNames) }}
+{{- $persistenceVolumeNames = append $persistenceVolumeNames $volumeName }}
+{{- $_ := set $persistenceVolumeClaims $volumeName (include "openhab.addonsPvcName" .) }}
+{{- end }}
+{{- if and .Values.persistence.addons.subPath (not (has $volumeName $subPathVolumeNames)) }}
+{{- $subPathVolumeNames = append $subPathVolumeNames $volumeName }}
+{{- end }}
+{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -51,6 +84,33 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if $hasConfigMaps }}
       initContainers:
+      {{- else if $hasPersistenceSubPath }}
+      initContainers:
+      {{- end }}
+      {{- if $hasPersistenceSubPath }}
+        - name: create-persistence-subpaths
+          image: "{{ .Values.configMaps.syncImage.repository }}:{{ .Values.configMaps.syncImage.tag }}"
+          imagePullPolicy: {{ .Values.configMaps.syncImage.pullPolicy }}
+          command: ["/bin/mkdir", "-p"]
+          args:
+            {{- if and .Values.persistence.userdata.enabled .Values.persistence.userdata.subPath }}
+            - {{ printf "/persistence/%s/%s" (include "openhab.userdataVolumeName" .) .Values.persistence.userdata.subPath | quote }}
+            {{- end }}
+            {{- if and .Values.persistence.conf.enabled .Values.persistence.conf.subPath }}
+            - {{ printf "/persistence/%s/%s" (include "openhab.confVolumeName" .) .Values.persistence.conf.subPath | quote }}
+            {{- end }}
+            {{- if and .Values.persistence.addons.enabled .Values.persistence.addons.subPath }}
+            - {{ printf "/persistence/%s/%s" (include "openhab.addonsVolumeName" .) .Values.persistence.addons.subPath | quote }}
+            {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            {{- range $volumeName := $subPathVolumeNames }}
+            - name: {{ $volumeName }}
+              mountPath: {{ printf "/persistence/%s" $volumeName }}
+            {{- end }}
+      {{- end }}
+      {{- if $hasConfigMaps }}
         - name: sync-configmaps
           image: "{{ .Values.configMaps.syncImage.repository }}:{{ .Values.configMaps.syncImage.tag }}"
           imagePullPolicy: {{ .Values.configMaps.syncImage.pullPolicy }}
@@ -67,8 +127,11 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
           volumeMounts:
-            - name: conf
+            - name: {{ include "openhab.confVolumeName" . }}
               mountPath: /openhab/conf
+              {{- with .Values.persistence.conf.subPath }}
+              subPath: {{ . | quote }}
+              {{- end }}
             {{- if $hasSitemaps }}
             - name: sitemaps
               mountPath: /config-src/sitemaps
@@ -122,35 +185,34 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{- if .Values.persistence.userdata.enabled }}
-            - name: userdata
+            - name: {{ include "openhab.userdataVolumeName" . }}
               mountPath: /openhab/userdata
+              {{- with .Values.persistence.userdata.subPath }}
+              subPath: {{ . | quote }}
+              {{- end }}
             {{- end }}
             {{- if .Values.persistence.conf.enabled }}
-            - name: conf
+            - name: {{ include "openhab.confVolumeName" $ }}
               mountPath: /openhab/conf
+              {{- with .Values.persistence.conf.subPath }}
+              subPath: {{ . | quote }}
+              {{- end }}
             {{- end }}
             {{- if .Values.persistence.addons.enabled }}
-            - name: addons
+            - name: {{ include "openhab.addonsVolumeName" $ }}
               mountPath: /openhab/addons
+              {{- with .Values.persistence.addons.subPath }}
+              subPath: {{ . | quote }}
+              {{- end }}
             {{- end }}
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
-        {{- if .Values.persistence.userdata.enabled }}
-        - name: userdata
+        {{- range $volumeName := $persistenceVolumeNames }}
+        - name: {{ $volumeName }}
           persistentVolumeClaim:
-            claimName: {{ include "openhab.userdataPvcName" . }}
-        {{- end }}
-        {{- if .Values.persistence.conf.enabled }}
-        - name: conf
-          persistentVolumeClaim:
-            claimName: {{ include "openhab.confPvcName" . }}
-        {{- end }}
-        {{- if .Values.persistence.addons.enabled }}
-        - name: addons
-          persistentVolumeClaim:
-            claimName: {{ include "openhab.addonsPvcName" . }}
+            claimName: {{ index $persistenceVolumeClaims $volumeName }}
         {{- end }}
         {{- if $hasSitemaps }}
         - name: sitemaps

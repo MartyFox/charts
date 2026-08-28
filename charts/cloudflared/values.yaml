@@ -16,7 +16,7 @@ image:
   # -- cloudflared container image
   repository: docker.io/cloudflare/cloudflared
   # -- Image tag
-  tag: "2026.6.1"
+  tag: "2026.8.2"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

@@ -25,7 +25,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "docker.io/vaultwarden/server:1.36.0"
+          value: "docker.io/vaultwarden/server:1.37.2"
 
   - it: should have 1 replica
     template: deployment.yaml
@@ -67,6 +67,45 @@ tests:
       - isNotNull:
           path: spec.template.spec.containers[0].startupProbe
 
+  - it: should prefix probe paths with the domain subpath
+    template: deployment.yaml
+    set:
+      domain: https://example.com/vaultwarden
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /vaultwarden/alive
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /vaultwarden/alive
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.path
+          value: /vaultwarden/alive
+
+  - it: should not duplicate the domain subpath in a custom probe path
+    template: deployment.yaml
+    set:
+      domain: https://example.com/vaultwarden
+      probes:
+        liveness:
+          path: /vaultwarden/health
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /vaultwarden/health
+
+  - it: should prefix a similar path that is not at the domain path boundary
+    template: deployment.yaml
+    set:
+      domain: https://example.com/vault
+      probes:
+        liveness:
+          path: /vaultish/health
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /vault/vaultish/health
+
   - it: should mount data volume
     template: deployment.yaml
     asserts:
@@ -93,6 +132,29 @@ tests:
           content:
             name: ENABLE_WEBSOCKET
             value: "true"
+
+  - it: should configure trusted proxies and unauthenticated rate limits
+    template: deployment.yaml
+    set:
+      vaultwarden.proxy.trustedProxies: "10.0.0.0/8,192.168.0.0/16"
+      vaultwarden.rateLimit.unauthenticated.seconds: 120
+      vaultwarden.rateLimit.unauthenticated.maxBurst: 25
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: IP_HEADER_TRUSTED_PROXIES
+            value: "10.0.0.0/8,192.168.0.0/16"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: UNAUTHENTICATED_RATELIMIT_SECONDS
+            value: "120"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: UNAUTHENTICATED_RATELIMIT_MAX_BURST
+            value: "25"
 
   - it: should bind Rocket to a non-privileged port by default
     template: deployment.yaml
@@ -124,3 +186,44 @@ tests:
           content:
             name: ROCKET_PORT
             value: "8080"
+
+  - it: should default to RollingUpdate strategy with default maxSurge/maxUnavailable
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.strategy.rollingUpdate.maxSurge
+          value: "25%"
+      - equal:
+          path: spec.strategy.rollingUpdate.maxUnavailable
+          value: "25%"
+
+  - it: should allow custom RollingUpdate maxSurge and maxUnavailable
+    template: deployment.yaml
+    set:
+      deployment.strategy.type: RollingUpdate
+      deployment.strategy.rollingUpdate.maxSurge: 1
+      deployment.strategy.rollingUpdate.maxUnavailable: 0
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.strategy.rollingUpdate.maxSurge
+          value: 1
+      - equal:
+          path: spec.strategy.rollingUpdate.maxUnavailable
+          value: 0
+
+  - it: should set Recreate strategy and omit rollingUpdate block
+    template: deployment.yaml
+    set:
+      deployment.strategy.type: Recreate
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+      - isNull:
+          path: spec.strategy.rollingUpdate

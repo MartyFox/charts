@@ -2,8 +2,15 @@
 
 Deploy [MediKeep](https://github.com/afairgiant/MediKeep), a self-hosted personal medical records application built with React and FastAPI.
 
-This chart packages the official `ghcr.io/afairgiant/medikeep:v0.67.0` image with PostgreSQL, persistent uploads and backups,
+This chart packages the official `ghcr.io/afairgiant/medikeep:v0.69.0` image with PostgreSQL, persistent uploads and backups,
 Kubernetes Ingress, Gateway API, NetworkPolicy, and External Secrets Operator integration.
+
+## Upgrade Notes
+
+MediKeep `v0.69.0` adds advanced lab-result entry and relationships, vaccine
+library synchronization, and a database migration that merges lab-result text
+values and backfills missing vaccines. Back up PostgreSQL and uploaded records
+before upgrading.
 
 ## Install
 
@@ -56,7 +63,13 @@ postgresql:
   auth:
     database: medical_records
     username: medapp
+    existingSecret: medikeep-postgresql
+    existingSecretPostgresPasswordKey: postgres-password
+    existingSecretUserPasswordKey: user-password
 ```
+
+The referenced Secret must contain the PostgreSQL superuser and application
+password keys shown above.
 
 To use an external PostgreSQL instance:
 
@@ -132,10 +145,7 @@ make validate-chart CHART=medikeep
 
 | Framework | Score |
 |---|---|
-| Overall | **91.00%** |
-| MITRE | **100.00%** |
-| NSA | **88.33%** |
-| SOC2 | **88.00%** |
+| MITRE + NSA + SOC2 | **92.42424%** |
 
 > Security posture acceptable.
 
@@ -143,4 +153,5 @@ make validate-chart CHART=medikeep
 
 - [Authentication and Secrets](docs/authentication.md)
 - [Exposure](docs/exposure.md)
+- [Production](docs/production.md)
 - [Storage](docs/storage.md)

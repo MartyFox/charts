@@ -3,6 +3,7 @@ suite: Deployment
 templates:
   - templates/deployment.yaml
   - templates/configmap.yaml
+  - templates/validate.yaml
 release:
   name: test
   namespace: default
@@ -28,7 +29,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "docker.io/binwiederhier/ntfy:v2.25.0"
+          value: "docker.io/binwiederhier/ntfy:v2.27.0"
 
   - it: should pass serve argument
     template: templates/deployment.yaml
@@ -101,3 +102,28 @@ tests:
     asserts:
       - exists:
           path: spec.template.metadata.annotations["checksum/config"]
+
+  - it: should load the PostgreSQL URL from an existing Secret
+    template: templates/deployment.yaml
+    set:
+      ntfy.database.enabled: true
+      ntfy.database.existingSecret: ntfy-database
+      ntfy.database.existingSecretKey: database-url
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NTFY_DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: ntfy-database
+                key: database-url
+
+  - it: should reject PostgreSQL without an existing Secret
+    template: templates/validate.yaml
+    set:
+      ntfy.database.enabled: true
+      ntfy.database.existingSecret: ""
+    asserts:
+      - failedTemplate:
+          errorMessage: "ntfy.database.enabled requires ntfy.database.existingSecret"

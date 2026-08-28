@@ -11,6 +11,19 @@
 {{- end -}}
 {{- end -}}
 
+{{/* ExternalSecret resource name */}}
+{{- define "ghost.externalSecretName" -}}
+{{- $root := index . "root" -}}
+{{- $item := index . "item" -}}
+{{- if $item.fullnameOverride -}}
+{{- $item.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $fullname := include "ghost.fullname" $root -}}
+{{- $itemName := required "externalSecrets.items[].name is required when fullnameOverride is not set" $item.name | trunc 32 | trimSuffix "-" -}}
+{{- printf "%s-%s" ($fullname | trunc (int (sub 62 (len $itemName))) | trimSuffix "-") $itemName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "ghost.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -41,6 +54,36 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "ghost.image" -}}
 {{- printf "%s:%s" .Values.image.repository .Values.image.tag -}}
+{{- end -}}
+
+{{- define "ghost.validate" -}}
+{{/* Triggers backup validation failures through ghost.backupEnabled; the return value is unused. */}}
+{{- $backupEnabled := include "ghost.backupEnabled" . -}}
+{{- if and (not .Values.mysql.enabled) (not .Values.database.external.host) -}}
+{{- fail "database.external.host is required when mysql.enabled is false" -}}
+{{- end -}}
+{{- if and (not .Values.mysql.enabled) (not .Values.database.external.existingSecret) (not .Values.database.external.password) -}}
+{{- fail "database.external.password or database.external.existingSecret is required when mysql.enabled is false" -}}
+{{- end -}}
+{{- if and .Values.ingress.enabled (not .Values.ingress.hosts) -}}
+{{- fail "ingress.enabled requires ingress.hosts to contain at least one host" -}}
+{{- end -}}
+{{- if .Values.ingress.enabled -}}
+{{- range $index, $host := .Values.ingress.hosts -}}
+{{- if not $host.host -}}
+{{- fail (printf "ingress.hosts[%d].host is required when ingress.enabled is true" $index) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if and .Values.gateway.enabled (not .Values.gateway.parentRefs) -}}
+{{- fail "gateway.parentRefs must contain at least one parentRef when gateway.enabled is true" -}}
+{{- end -}}
+{{- if and .Values.externalSecrets.enabled (not .Values.database.external.existingSecret) -}}
+{{- fail "database.external.existingSecret is required when externalSecrets.enabled is true" -}}
+{{- end -}}
+{{- if and .Values.externalSecrets.enabled (not (or .Values.externalSecrets.items .Values.externalSecrets.data)) -}}
+{{- fail "externalSecrets.items or externalSecrets.data is required when externalSecrets.enabled=true" -}}
+{{- end -}}
 {{- end -}}
 
 {{/* Content PVC claim name */}}

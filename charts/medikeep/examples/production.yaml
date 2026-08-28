@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# Production-oriented MediKeep deployment. Create the referenced Secrets before
+# installing; never keep personal-health-data credentials in a values file.
+app:
+  debug: false
+  enableApiDocs: false
+
+secrets:
+  existingSecret: medikeep-runtime
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - host: health.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: medikeep-tls
+      hosts:
+        - health.example.com
+
+persistence:
+  uploads:
+    size: 20Gi
+  backups:
+    size: 20Gi
+  logs:
+    enabled: false
+
+pdb:
+  enabled: true
+
+networkPolicy:
+  enabled: true
+  ingressFrom:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+  egress:
+    enabled: true
+    allowDNS: true
+
+postgresql:
+  auth:
+    existingSecret: medikeep-postgresql
+    existingSecretPostgresPasswordKey: postgres-password
+    existingSecretUserPasswordKey: user-password
+  standalone:
+    persistence:
+      size: 20Gi

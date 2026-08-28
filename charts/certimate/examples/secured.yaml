@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+persistence:
+  enabled: true
+  size: 20Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+networkPolicy:
+  enabled: true
+  extraEgress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443

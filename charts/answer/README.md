@@ -5,8 +5,8 @@ Deploy [Apache Answer](https://answer.apache.org/) on Kubernetes — an open-sou
 ## Features
 
 - **SQLite by default** — zero database configuration needed
-- **PostgreSQL subchart** — bundled via HelmForge dependency (`2.0.2`)
-- **MySQL subchart** — bundled via HelmForge dependency (`2.0.0`)
+- **PostgreSQL subchart** — bundled via HelmForge dependency (`2.0.4`)
+- **MySQL subchart** — bundled via HelmForge dependency (`2.0.3`)
 - **External database** — connect to existing PostgreSQL or MySQL
 - **Auto-install** — unattended setup via environment variables
 - **Scheduled backups** — database-aware CronJob with S3 upload
@@ -94,6 +94,8 @@ database:
 | `answer.externalContentDisplay` | `ask_before_display` | External content display policy used by auto-install |
 | `answer.autoInstall` | `true` | Enable unattended setup |
 | `answer.logLevel` | `INFO` | Log level (DEBUG, INFO, WARN, ERROR) |
+| `answer.notifications.newQuestionEmail.queueSize` | `1024` | Maximum buffered new-question email tasks |
+| `answer.notifications.newQuestionEmail.sendIntervalSeconds` | `0` | Delay between new-question email attempts; 0 disables throttling |
 | `admin.name` | `admin` | Admin username |
 | `admin.password` | `""` | Admin password (auto-generated) |
 | `admin.email` | `admin@example.com` | Admin email |

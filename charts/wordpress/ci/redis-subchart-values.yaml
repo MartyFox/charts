@@ -2,10 +2,12 @@
 plugins:
   enabled: true
   installer:
-    enabled: true
+    enabled: false
 
 objectCache:
   enabled: true
+  installPlugin: false
+  enableDropIn: false
   redis:
     mode: subchart
     subchart:

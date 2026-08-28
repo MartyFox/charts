@@ -38,7 +38,7 @@
         "tag": {
           "type": "string",
           "description": "Image tag",
-          "default": "3.1.0"
+          "default": "3.3.1"
         },
         "pullPolicy": {
           "type": "string",
@@ -477,6 +477,39 @@
     "podAnnotations": {
       "type": "object",
       "description": "Additional annotations for the pod"
+    },
+    "initContainers": {
+      "type": "object",
+      "description": "Internal init container settings",
+      "additionalProperties": false,
+      "required": ["waitForDatabase"],
+      "properties": {
+        "waitForDatabase": {
+          "type": "object",
+          "description": "Database availability check that runs before Umami",
+          "additionalProperties": false,
+          "required": ["enabled", "image", "pullPolicy"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Wait for the database socket before starting Umami",
+              "default": true
+            },
+            "image": {
+              "type": "string",
+              "description": "Container image used to check database connectivity",
+              "minLength": 1,
+              "default": "docker.io/library/busybox:1.37"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "description": "Image pull policy for the database wait container",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        }
+      }
     },
     "extraVolumes": {
       "type": "array",

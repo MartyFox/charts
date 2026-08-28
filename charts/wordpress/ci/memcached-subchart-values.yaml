@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+plugins:
+  enabled: true
+  installer:
+    enabled: false
+
+objectCache:
+  enabled: true
+  provider: memcached
+  installPlugin: false
+  enableDropIn: false
+  memcached:
+    allowOfficialImageWithoutExtension: true
+    validatePhpExtension: false
+    mode: subchart
+    subchart:
+      enabled: true
+
+memcached:
+  # Keep the dependency Service distinct when the validation release name
+  # itself contains "memcached".
+  nameOverride: mcserver
+  architecture: standalone
+  memcached:
+    memoryLimitMB: 128
+
+mysql:
+  auth:
+    password: ci-db-password
+    rootPassword: ci-root-password
+  primary:
+    persistence:
+      enabled: false
+
+persistence:
+  enabled: true
+  size: 1Gi

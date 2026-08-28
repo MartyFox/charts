@@ -35,10 +35,9 @@ To skip the wizard and deploy a pre-configured instance, provide `config.adGuard
 
 ## Upstream Version Notes
 
-AdGuard Home `0.107.77` is an upstream security and bugfix release. It fixes a
-GLiNET-mode authorization path traversal issue (CVE-2026-41448), adds the
-`reason` query parameter for query log filtering, and deprecates the older
-`response_status` query parameter.
+AdGuard Home `0.107.79` is an upstream security and stability release. It
+updates Go to address upstream vulnerabilities and improves resistance to
+resource exhaustion attacks when DNS-over-QUIC is enabled.
 
 The `0.107.76` release notes also state that YAML duration values now support
 `d` day units. If you roll back to a version below `v0.107.76`, convert any `d`
@@ -188,7 +187,7 @@ backup:
 | Key | Default | Description |
 |-----|---------|-------------|
 | `image.repository` | `docker.io/adguard/adguardhome` | Container image |
-| `image.tag` | `v0.107.77` | Image tag |
+| `image.tag` | `v0.107.79` | Image tag |
 | `image.pullPolicy` | `IfNotPresent` | Pull policy |
 
 ### General Configuration
@@ -221,7 +220,9 @@ backup:
 | `service.web.ipFamilies` | `[]` | IP families (`IPv4`, `IPv6`) |
 | `service.dns.type` | `LoadBalancer` | DNS service type |
 | `service.dns.port` | `53` | DNS port |
+| `service.dns.extraPorts` | `[]` | Additional named DNS service ports, such as DNS-over-TLS on TCP 853 |
 | `service.dns.loadBalancerIP` | `""` | Fixed IP for DNS stability |
+| `service.dns.externalTrafficPolicy` | `Cluster` | Traffic policy for external traffic (`Cluster`, `Local`). Set to `Local` to preserve client source IP |
 | `service.dns.ipFamilyPolicy` | `~` | Dual-stack policy (`SingleStack`, `PreferDualStack`, `RequireDualStack`) |
 | `service.dns.ipFamilies` | `[]` | IP families (`IPv4`, `IPv6`) |
 

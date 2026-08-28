@@ -43,6 +43,11 @@ spec:
   {{- with .Values.service.dns.loadBalancerIP }}
   loadBalancerIP: {{ . }}
   {{- end }}
+  {{- if ne .Values.service.dns.type "ClusterIP" }}
+  {{- with .Values.service.dns.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- end }}
   {{- with .Values.service.dns.ipFamilyPolicy }}
   ipFamilyPolicy: {{ . }}
   {{- end }}
@@ -59,5 +64,8 @@ spec:
       port: {{ .Values.service.dns.port }}
       targetPort: dns-udp
       protocol: UDP
+    {{- with .Values.service.dns.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   selector:
     {{- include "adguard-home.serverSelectorLabels" . | nindent 4 }}

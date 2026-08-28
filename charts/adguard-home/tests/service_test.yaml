@@ -35,9 +35,29 @@ tests:
           path: spec.type
           value: LoadBalancer
 
+  - it: should set externalTrafficPolicy when specified
+    documentIndex: 1
+    set:
+      service.dns.externalTrafficPolicy: Local
+    asserts:
+      - equal:
+          path: spec.externalTrafficPolicy
+          value: Local
+
+  - it: should omit externalTrafficPolicy when null
+    documentIndex: 1
+    set:
+      service.dns.externalTrafficPolicy: null
+    asserts:
+      - isNull:
+          path: spec.externalTrafficPolicy
+
   - it: should have DNS TCP and UDP ports
     documentIndex: 1
     asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 2
       - contains:
           path: spec.ports
           content:
@@ -51,6 +71,37 @@ tests:
             name: dns-udp
             port: 53
             targetPort: dns-udp
+            protocol: UDP
+
+  - it: should append explicitly configured DNS service ports
+    documentIndex: 1
+    set:
+      service.dns.extraPorts:
+        - name: dns-tls
+          port: 853
+          targetPort: 853
+          protocol: TCP
+        - name: dns-alt
+          port: 5353
+          targetPort: dns-tcp
+          protocol: UDP
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 4
+      - contains:
+          path: spec.ports
+          content:
+            name: dns-tls
+            port: 853
+            targetPort: 853
+            protocol: TCP
+      - contains:
+          path: spec.ports
+          content:
+            name: dns-alt
+            port: 5353
+            targetPort: dns-tcp
             protocol: UDP
 
   - it: should set loadBalancerIP when specified

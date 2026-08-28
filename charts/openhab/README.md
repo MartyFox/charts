@@ -102,7 +102,7 @@ Use feature flags instead to enable optional components.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `image.tag` | openHAB image tag | `5.1.4` |
+| `image.tag` | openHAB image tag | `5.2.1` |
 | `image.repository` | Image repository | `docker.io/openhab/openhab` |
 | `replicaCount` | Must be 1 — no clustering support | `1` |
 | `namespaceOverride` | Namespace for chart-managed resources | `""` |
@@ -140,10 +140,20 @@ Use feature flags instead to enable optional components.
 | `persistence.userdata.size` | userdata PVC size | `5Gi` |
 | `persistence.userdata.storageClass` | Storage class | `""` (cluster default) |
 | `persistence.userdata.existingClaim` | Use existing PVC | `""` |
+| `persistence.userdata.subPath` | Relative directory in the userdata PVC | `""` |
 | `persistence.conf.enabled` | Enable conf PVC | `true` |
 | `persistence.conf.size` | conf PVC size | `1Gi` |
+| `persistence.conf.existingClaim` | Use existing PVC | `""` |
+| `persistence.conf.subPath` | Relative directory in the conf PVC | `""` |
 | `persistence.addons.enabled` | Enable addons PVC | `true` |
 | `persistence.addons.size` | addons PVC size | `2Gi` |
+| `persistence.addons.existingClaim` | Use existing PVC | `""` |
+| `persistence.addons.subPath` | Relative directory in the addons PVC | `""` |
+
+> **Warning:** A new PVC may contain a `lost+found` directory at its root.
+> openHAB then does not recognize the mounted directory as empty on its first
+> start, skips initialization, and fails to start. Use a dedicated, empty
+> `subPath` instead of mounting the PVC root in this case.
 
 ### ConfigMap Parameters
 
@@ -234,6 +244,14 @@ metrics:
 rule executions, threadpool statistics, JVM metrics (memory, GC, threads).
 
 See [Prometheus Metrics Guide](docs/metrics.md) for full details.
+
+## Upgrade Notes
+
+openHAB `5.2.1` is a stable patch release for the 5.x line. It fixes runtime,
+UI, connectivity, scripting, voice, and add-on regressions without changing the
+container contract. Back up the `userdata`, `conf`, and `addons` PVCs before
+upgrading. openHAB 5.x still requires Java 21, which is provided by the official
+container image used by this chart.
 
 ### Security Scan: openhab
 

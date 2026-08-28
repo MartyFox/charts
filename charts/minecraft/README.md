@@ -155,6 +155,8 @@ Spigot servers, provide the platform-specific Floodgate plugin through
 | `server.eula` | `true` | Accept the Minecraft EULA (required) |
 | `server.type` | `VANILLA` | Server type (VANILLA, PAPER, FORGE, FABRIC, etc.) |
 | `server.version` | `LATEST` | Minecraft version |
+| `server.preferIPv6` | `false` | Prefer the IPv6 Java network stack and addresses |
+| `server.runner` | `mc-server-runner` | Process supervisor command |
 | `server.motd` | `A Minecraft Server powered by HelmForge` | Message of the day |
 | `server.difficulty` | `normal` | Game difficulty |
 | `server.gameMode` | `survival` | Default game mode |
@@ -255,10 +257,14 @@ Spigot servers, provide the platform-specific Floodgate plugin through
 
 ## Upgrade Notes
 
-`docker.io/itzg/minecraft-server:2026.6.1` updates the upstream server image from
-`2026.6.0`. Review the upstream release notes before upgrading production servers,
-take a world backup, and verify plugins, mods, datapacks, proxy settings, and
-pinned `server.version` values in a staging environment before reusing existing PVCs.
+`docker.io/itzg/minecraft-server:2026.8.2` fixes Modrinth packs that require
+server-side mods, corrects `STOP_SERVER_DELAY_COMMAND`, and updates the bundled
+Minecraft helper tools. It retains native `PREFER_IPv6` and custom
+`SERVER_RUNNER` support. Configure the
+first two features with `server.preferIPv6` and `server.runner`.
+Review the upstream release notes before upgrading production servers, take a
+world backup, and verify plugins, mods, datapacks, proxy settings, and pinned
+`server.version` values in a staging environment before reusing existing PVCs.
 
 ## Security Scan
 
@@ -268,6 +274,8 @@ Security Scan: Kubescape local scan against `MITRE,NSA,SOC2` reports a 78.79% re
 
 | Key | Default | Description |
 |-----|---------|-------------|
+| `mods.genericPacks` | `""` | Generic pack URLs or OCI references, applied in order |
+| `mods.genericPacksOciAuthFile` | `""` | Registry auth file path for private OCI packs |
 | `mods.modrinthProjects` | `""` | Modrinth project slugs (comma-separated) |
 | `mods.curseforgeApiKey` | `""` | CurseForge API key |
 | `mods.autoCurseforgeSlug` | `""` | Auto CurseForge modpack slug |

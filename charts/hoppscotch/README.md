@@ -77,7 +77,7 @@ backend process inside the AIO image.
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `mode` | Chart mode: `dev` or `production` | `dev` |
-| `image.tag` | Hoppscotch image tag | `2026.5.0` |
+| `image.tag` | Hoppscotch image tag | `2026.7.0` |
 | `namespaceOverride` | Namespace for chart-managed resources. Use with an external database; bundled PostgreSQL remains in the Helm release namespace. | `""` |
 | `replicaCount` | Number of replicas | `1` |
 | `ingress.enabled` | Enable Ingress | `false` |
@@ -105,9 +105,9 @@ backend process inside the AIO image.
 
 ## Upgrade Notes
 
-Hoppscotch `2026.5.0` adds OpenAPI 3.1 collection export, configurable proxy URLs through environment/admin settings,
-Mongolian language support, security patches, and fixes that prevent secret variable values from leaking to the backend.
-Back up the PostgreSQL database and keep `DATA_ENCRYPTION_KEY` stable before upgrading.
+Hoppscotch `2026.7.0` fixes collection data loss in personal workspaces and request loss when importing large team
+collections, adds fallback to initial values for empty environment variables, and includes security fixes. Back up the
+PostgreSQL database and keep `DATA_ENCRYPTION_KEY` stable before upgrading.
 The bundled PostgreSQL path now derives `DATABASE_URL` from the PostgreSQL
 user password Secret, bootstraps `pg_trgm` on fresh data directories, and runs
 a pre-upgrade hook to apply `pg_trgm` to existing bundled PostgreSQL PVCs before
@@ -152,7 +152,7 @@ This chart does not:
 - Manage OAuth provider registration (do this in the provider's developer console)
 - Provide built-in backup for PostgreSQL (use the HelmForge PostgreSQL chart with backup enabled)
 
-### 🟢 Security Scan: `hoppscotch`
+### Security Scan: `hoppscotch`
 
 | Framework | Score |
 |---|---|

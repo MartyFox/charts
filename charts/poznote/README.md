@@ -71,7 +71,7 @@ ingress:
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `image.repository` | Image repository | `ghcr.io/timothepoznanski/poznote` |
-| `image.tag` | Image tag | `6.29.0` |
+| `image.tag` | Image tag | `6.68.3` |
 | `image.pullPolicy` | Pull policy | `IfNotPresent` |
 
 #### Application Parameters
@@ -108,6 +108,7 @@ ingress:
 | `secrets.oidcClientId` | Inline OIDC client ID | `""` |
 | `secrets.oidcClientSecret` | Inline OIDC client secret | `""` |
 | `poznote.oidc.disableNormalLogin` | Force SSO-only login | `false` |
+| `poznote.sharing.hideRestrictUsers` | Hide user restriction controls in sharing dialogs | `false` |
 
 ## Examples
 
@@ -115,12 +116,14 @@ ingress:
 - [Ingress Exposure](examples/ingress.yaml)
 - [Gateway API Exposure](examples/gateway-api.yaml)
 - [OIDC Secured](examples/secured.yaml)
+- [Production](examples/production.yaml)
 
 ## Architecture Guides
 
 - [Storage Guide](docs/storage.md)
 - [Exposure Guide](docs/exposure.md)
 - [Authentication Guide](docs/authentication.md)
+- [Production Guide](docs/production.md)
 
 ## Connecting to Poznote
 
@@ -137,6 +140,18 @@ This chart intentionally does NOT:
 - Support multi-replica scaling (SQLite limitation)
 - Provide a database subchart (SQLite is embedded)
 - Bundle the MCP server container (separate deployment concern)
+
+## Upgrade Notes
+
+Poznote `6.68.3` improves search and replace in rendered Markdown previews and
+fixes indented code blocks that contain inline Markdown. Review the
+[upstream 6.68.3 release](https://github.com/timothepoznanski/poznote/releases/tag/6.68.3)
+before upgrading. The default local SQLite and filesystem deployment remains
+compatible; S3 integration is configured inside Poznote when needed.
+
+No upstream storage migration is required. Back up the `data` PVC before
+upgrading because it stores the SQLite database, notes, attachments, and
+application configuration.
 
 ## Security Scan
 

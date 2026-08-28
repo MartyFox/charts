@@ -3,8 +3,8 @@ apiVersion: v2
 name: poznote
 description: Self-hosted note-taking and documentation platform with SQLite persistence
 type: application
-version: 1.0.1
-appVersion: "6.29.0"
+version: 2.0.0
+appVersion: "6.68.3"
 kubeVersion: ">=1.26.0-0"
 home: https://helmforge.dev/docs/charts/poznote
 sources:
@@ -24,12 +24,12 @@ maintainers:
 icon: https://helmforge.dev/icons/charts/poznote.png
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "add chart (#630)"
+    - kind: changed
+      description: "BREAKING: promote chart to stable (#1073)"
   artifacthub.io/category: skip-prediction
   artifacthub.io/license: Apache-2.0
   artifacthub.io/prerelease: "false"
-  helmforge.dev/maturity: beta
+  helmforge.dev/maturity: stable
   artifacthub.io/links: |
     - name: Official Source
       url: https://github.com/timothepoznanski/poznote

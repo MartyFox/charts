@@ -3,8 +3,8 @@ apiVersion: v2
 name: qdrant
 description: Qdrant vector database
 type: application
-version: 1.0.2
-appVersion: "1.18.2"
+version: 1.0.4
+appVersion: "1.19.0"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev
@@ -20,8 +20,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/qdrant.png
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "align template standards (#673)"
+    - kind: changed
+      description: "bump image to 1.19.0 (#968)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev

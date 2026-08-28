@@ -29,8 +29,67 @@
         "attachmentTotalSizeLimit": { "type": "string", "default": "" },
         "attachmentFileSizeLimit": { "type": "string", "default": "" },
         "attachmentExpiryDuration": { "type": "string", "default": "" },
+        "banFeed": {
+          "type": "object",
+          "description": "Opt-in abuse ban-feed for an external fail2ban or equivalent consumer",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "file": { "type": "string", "default": "/var/cache/ntfy/ban.log" },
+            "window": { "type": "string", "minLength": 1, "default": "10m" },
+            "threshold": { "type": "integer", "minimum": 1, "default": 100 },
+            "weights": {
+              "type": "array",
+              "default": ["42909:10"],
+              "items": {
+                "type": "string",
+                "pattern": "^(?:\\*|[0-9]+\\*?):[0-9]+$"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "enabled": { "const": true } }, "required": ["enabled"] },
+              "then": {
+                "properties": { "file": { "minLength": 1, "pattern": "^/" } },
+                "required": ["file"]
+              }
+            }
+          ]
+        },
         "extraConfig": { "type": "string", "default": "" },
-        "extraEnv": { "type": "array", "items": { "type": "object" } }
+        "extraEnv": { "type": "array", "items": { "type": "object" } },
+        "database": {
+          "type": "object",
+          "description": "PostgreSQL configuration",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "existingSecret": { "type": "string", "default": "" },
+            "existingSecretKey": { "type": "string", "minLength": 1, "default": "database-url" }
+          }
+        }
+      }
+    },
+    "externalSecrets": {
+      "type": "object",
+      "description": "External Secrets Operator resources for database credentials",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "refreshInterval": { "type": "string", "minLength": 1, "default": "1h" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "fullnameOverride": { "type": "string" },
+              "labels": { "type": "object" },
+              "annotations": { "type": "object" },
+              "spec": { "type": "object" }
+            }
+          }
+        }
       }
     },
     "persistence": {

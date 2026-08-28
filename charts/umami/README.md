@@ -252,7 +252,7 @@ For production, test restore procedures outside Helm. Backups without restore va
 | --- | --- | --- |
 | `replicaCount` | `1` | Number of Umami pods. |
 | `image.repository` | `ghcr.io/umami-software/umami` | Umami image repository. |
-| `image.tag` | `3.1.0` | Umami image tag. |
+| `image.tag` | `3.3.1` | Umami image tag. |
 | `service.type` | `ClusterIP` | Kubernetes service type. |
 | `service.ipFamilyPolicy` | `""` | Optional service IP family policy. |
 | `service.ipFamilies` | `[]` | Optional service IP families. |
@@ -266,6 +266,9 @@ For production, test restore procedures outside Helm. Backups without restore va
 | `pdb.enabled` | `false` | Render PodDisruptionBudget. |
 | `backup.enabled` | `false` | Enable S3-compatible backup CronJob. |
 | `serviceAccount.automountServiceAccountToken` | `false` | Control service account token mounting. |
+| `initContainers.waitForDatabase.enabled` | `true` | Wait for the database socket before starting Umami. |
+| `initContainers.waitForDatabase.image` | `docker.io/library/busybox:1.37` | Image used by the database readiness check. |
+| `initContainers.waitForDatabase.pullPolicy` | `IfNotPresent` | Pull policy for the database readiness image. |
 | `extraInitContainers` | `[]` | Additional init containers for preparing shared volumes before Umami starts. |
 | `extraVolumes` / `extraVolumeMounts` | `[]` | Additional pod volumes and Umami container mounts, such as GeoIP databases or custom assets. |
 
@@ -280,6 +283,8 @@ For production, test restore procedures outside Helm. Backups without restore va
 
 Umami 3.x includes database migrations for newer analytics features such as Boards, Shares, Session Replay, and Web Vitals.
 Back up PostgreSQL before upgrading live deployments, especially when migrating from Umami 2.x.
+Umami 3.3.1 adds a username-normalization migration and fixes two-factor authentication configuration, tracking session
+drift, event filtering and pagination, funnel metrics, and zero/false value responses.
 
 ## More Information
 
@@ -292,7 +297,7 @@ Back up PostgreSQL before upgrading live deployments, especially when migrating 
 
 | Framework | Score |
 |---|---|
-| MITRE + NSA + SOC2 | **81.818184%** |
+| MITRE + NSA + SOC2 | **84.85%** |
 
 > ✅ Security posture acceptable.
 

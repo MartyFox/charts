@@ -3,8 +3,8 @@ apiVersion: v2
 name: memcached
 description: Memcached Helm Chart for standalone and distributed cache topologies
 type: application
-version: 1.0.7
-appVersion: "1.6.42"
+version: 1.0.8
+appVersion: "1.6.45"
 kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: helmforgedev
@@ -24,8 +24,8 @@ sources:
 icon: https://helmforge.dev/icons/charts/memcached.png
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "align template standards (#680)"
+    - kind: changed
+      description: "bump image to 1.6.45 (#766)"
   artifacthub.io/maintainers: |
     - name: HelmForge
       email: berlofa@helmforge.dev
