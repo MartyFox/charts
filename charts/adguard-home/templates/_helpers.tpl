@@ -31,6 +31,21 @@ app.kubernetes.io/name: {{ include "adguard-home.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
+{{/* Selector labels for the AdGuard Home server pod/services. Adds the
+     component discriminator so Services do not also match the sync pod
+     (which carries app.kubernetes.io/component: sync). */}}
+{{- define "adguard-home.serverSelectorLabels" -}}
+{{ include "adguard-home.selectorLabels" . }}
+app.kubernetes.io/component: server
+{{- end -}}
+
+{{/* Full metadata labels for server-owned objects, mirroring the sync and
+     backup components which carry their own app.kubernetes.io/component. */}}
+{{- define "adguard-home.serverLabels" -}}
+{{ include "adguard-home.labels" . }}
+app.kubernetes.io/component: server
+{{- end -}}
+
 {{/* Image helper - tag prefixed with "v" */}}
 {{- define "adguard-home.image" -}}
 {{- printf "%s:%s" .Values.image.repository .Values.image.tag -}}
