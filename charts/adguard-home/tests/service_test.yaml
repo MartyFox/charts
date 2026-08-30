@@ -112,3 +112,24 @@ tests:
       - equal:
           path: spec.loadBalancerIP
           value: "192.168.1.100"
+
+  - it: should scope web service selector to the server component
+    documentIndex: 0
+    set:
+      sync.enabled: true
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/component"]
+          value: server
+
+  - it: should scope dns service selector to the server component
+    documentIndex: 1
+    set:
+      sync.enabled: true
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/component"]
+          value: server
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: server
