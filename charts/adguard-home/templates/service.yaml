@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: {{ include "adguard-home.fullname" . }}-web
   labels:
-    {{- include "adguard-home.labels" . | nindent 4 }}
+    {{- include "adguard-home.serverLabels" . | nindent 4 }}
   {{- with .Values.service.web.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -25,7 +25,7 @@ spec:
       targetPort: http
       protocol: TCP
   selector:
-    {{- include "adguard-home.selectorLabels" . | nindent 4 }}
+    {{- include "adguard-home.serverSelectorLabels" . | nindent 4 }}
 ---
 {{/* DNS service - separate for LoadBalancer/NodePort */}}
 apiVersion: v1
@@ -33,7 +33,7 @@ kind: Service
 metadata:
   name: {{ include "adguard-home.fullname" . }}-dns
   labels:
-    {{- include "adguard-home.labels" . | nindent 4 }}
+    {{- include "adguard-home.serverLabels" . | nindent 4 }}
   {{- with .Values.service.dns.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -68,4 +68,4 @@ spec:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   selector:
-    {{- include "adguard-home.selectorLabels" . | nindent 4 }}
+    {{- include "adguard-home.serverSelectorLabels" . | nindent 4 }}

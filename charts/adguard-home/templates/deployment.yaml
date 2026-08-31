@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ include "adguard-home.fullname" . }}
   labels:
-    {{- include "adguard-home.labels" . | nindent 4 }}
+    {{- include "adguard-home.serverLabels" . | nindent 4 }}
 spec:
   replicas: 1
   strategy:
@@ -27,7 +27,7 @@ spec:
       {{- end }}
       {{- end }}
       labels:
-        {{- include "adguard-home.selectorLabels" . | nindent 8 }}
+        {{- include "adguard-home.serverSelectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
